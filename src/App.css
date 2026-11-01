@@ -1,42 +1,252 @@
-#root {
-  max-width: 1280px;
+/* Адаптивная вёрстка: базовые стили для телефонов, расширение на планшетах и ПК */
+.app {
+  width: 100%;
+  max-width: 640px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 24px 16px 32px;
+}
+
+.app-header {
   text-align: center;
+  margin-bottom: 20px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
+.app-header h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  line-height: 1.2;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+.subtitle {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.95rem;
 }
 
 .card {
-  padding: 2em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 4px 18px rgba(20, 30, 60, 0.06);
 }
 
-.read-the-docs {
-  color: #888;
+/* Форма добавления */
+.task-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.task-form input {
+  flex: 1 1 200px;
+  min-width: 0;
+  padding: 12px 14px;
+  font-size: 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.task-form input:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.task-form input[aria-invalid="true"] {
+  border-color: var(--danger);
+}
+
+.task-form button {
+  flex: 0 0 auto;
+  padding: 12px 20px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.task-form button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.form-error {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+}
+
+/* Статусы */
+.status {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-size: 0.95rem;
+}
+
+.status-loading { justify-content: flex-start; color: var(--muted); background: var(--bg); }
+.status-ok { color: var(--ok); background: var(--ok-bg); }
+.status-error { color: var(--danger); background: var(--danger-bg); }
+
+.status-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.status-actions button {
+  padding: 4px 10px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Фильтры */
+.filters {
+  display: flex;
+  gap: 6px;
+  margin: 16px 0 12px;
+  overflow-x: auto;
+}
+
+.filters button {
+  flex: 1 0 auto;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.filters button.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.count {
+  display: inline-block;
+  min-width: 1.5em;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  font-size: 0.8rem;
+}
+
+.filters button.active .count { background: rgba(255, 255, 255, 0.25); }
+
+/* Список */
+.task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.task-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+.task-item:last-child { border-bottom: none; }
+.task-item.busy { opacity: 0.55; }
+
+.task-item input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.task-title {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.task-item.completed .task-title {
+  color: var(--muted);
+  text-decoration: line-through;
+}
+
+.delete-btn {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.delete-btn:hover,
+.delete-btn:focus-visible {
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+.empty {
+  margin: 8px 0;
+  padding: 24px 8px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.app-footer {
+  margin-top: 16px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Планшеты и ПК */
+@media (min-width: 600px) {
+  .app { padding-top: 48px; }
+  .app-header h1 { font-size: 2.25rem; }
+  .card { padding: 24px; }
+  .filters button { flex: 0 0 auto; }
+  .delete-btn { opacity: 0.4; }
+  .task-item:hover .delete-btn,
+  .delete-btn:focus-visible { opacity: 1; }
 }
