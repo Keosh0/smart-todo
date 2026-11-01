@@ -1,0 +1,18 @@
+# Зависимости и сборка
+node_modules/
+dist/
+coverage/
+
+# Переменные окружения и секреты
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel/
+
+# Логи и служебные файлы
+*.log
+.DS_Store
+.vscode/*
+!.vscode/extensions.json
