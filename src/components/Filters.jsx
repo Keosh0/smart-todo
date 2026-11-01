@@ -1,4 +1,4 @@
-export const FILTERS = [
+const FILTERS = [
     { value: "all", label: "Все" },
     { value: "active", label: "Активные" },
     { value: "completed", label: "Завершённые" },

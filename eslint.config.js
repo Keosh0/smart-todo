@@ -35,4 +35,8 @@ export default [
     files: ['server/**/*.js', 'api/**/*.js'],
     languageOptions: { globals: globals.node },
   },
+  {
+    files: ['tests/**/*.{js,jsx}', 'jest.config.js', 'babel.config.cjs'],
+    languageOptions: { globals: { ...globals.jest, ...globals.node } },
+  },
 ]

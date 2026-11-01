@@ -1,7 +1,8 @@
 // Клиент REST API. Все запросы идут на относительный адрес /api:
 // локально Vite проксирует его на Express (vite.config.js), на Vercel — серверная функция.
+import { API_KEY } from "./apiConfig";
+
 const BASE_URL = "/api/tasks";
-const API_KEY = import.meta.env.VITE_API_KEY;
 
 // Ошибка запроса: отличает сетевые сбои от ответов сервера с кодом ошибки
 export class ApiError extends Error {
