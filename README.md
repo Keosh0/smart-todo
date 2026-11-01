@@ -1,12 +1,116 @@
-# React + Vite
+# Умный список задач (Smart TodoList)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Клиент-серверное веб-приложение: фронтенд на React (Vite), бэкенд — REST API на Express.js.
+Итоговый проект по курсу «Разработка программного обеспечения и веб-приложений».
 
-Currently, two official plugins are available:
+**Демо:** https://smart-todo-keo18.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Возможности
 
-## Expanding the ESLint configuration
+- добавление задачи, отметка выполнения чекбоксом, удаление;
+- фильтры «Все / Активные / Завершённые» со счётчиками;
+- адаптивная вёрстка (телефон, планшет, ПК), светлая и тёмная тема по настройкам системы;
+- работа с API через `fetch` и `async/await`, отображение загрузки, успешных действий и ошибок
+  (нет связи с сервером, ошибка сервера с текстом из ответа, кнопка «Повторить»);
+- проверка API-ключа и валидация данных на сервере;
+- 20 тестов Jest: 15 тестов React-компонентов и 5 тестов API.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Структура
+
+```
+smart-todo/
+├── src/                  фронтенд (React)
+│   ├── api.js            клиент REST API (fetch, async/await, ApiError)
+│   ├── App.jsx           состояние, загрузка и действия с задачами
+│   └── components/       TaskForm, TaskList, TaskItem, Filters, StatusBar
+├── server/               бэкенд (Express)
+│   ├── app.js            маршруты /api/tasks
+│   ├── store.js          хранилище задач в памяти
+│   ├── index.js          локальный запуск сервера
+│   └── middleware/       apiKey.js (проверка x-api-key), validate.js (валидация)
+├── api/index.js          точка входа серверной функции Vercel
+├── tests/                тесты Jest
+└── vercel.json           настройки сборки и маршрутизации /api на Vercel
+```
+
+## Запуск локально
+
+Требуется Node.js 20+.
+
+```bash
+npm install
+cp .env.example .env      # задайте одинаковые API_KEY и VITE_API_KEY
+npm run server            # API: http://localhost:4000
+npm run dev               # в другом терминале, фронтенд: http://localhost:5173
+```
+
+Vite проксирует запросы `/api` на `http://localhost:4000`, поэтому фронтенд всегда обращается к относительному адресу.
+
+Другие команды:
+
+```bash
+npm test          # тесты Jest
+npm run build     # продакшн-сборка в dist
+npm run lint      # ESLint
+```
+
+## Переменные окружения
+
+| Переменная | Где используется | Назначение |
+|---|---|---|
+| `API_KEY` | сервер | ключ, который проверяет middleware `checkApiKey` |
+| `VITE_API_KEY` | фронтенд | ключ, отправляемый в заголовке `x-api-key` (должен совпадать с `API_KEY`) |
+| `PORT` | сервер | порт локального сервера, по умолчанию 4000 |
+
+Файл `.env` не попадает в репозиторий (`.gitignore`), в репозитории лежит только образец `.env.example`.
+На Vercel переменные задаются в **Settings → Environment Variables**.
+
+> Переменные с префиксом `VITE_` встраиваются в сборку, поэтому ключ виден в коде страницы. Для учебного проекта
+> это «базовая защита» от случайных запросов; для настоящей защиты нужна авторизация пользователей.
+
+## Документация API
+
+Базовый адрес: `/api`. Все маршруты `/api/tasks` требуют заголовок `x-api-key`.
+Тело запросов и ответов — JSON. Задача:
+
+```json
+{ "id": 1, "title": "Купить хлеб", "completed": false, "createdAt": "2026-11-01T08:41:17.377Z" }
+```
+
+| Метод | Маршрут | Тело запроса | Успешный ответ | Ошибки |
+|---|---|---|---|---|
+| GET | `/api/health` | — | `200 {"status":"ok"}` (ключ не нужен) | — |
+| GET | `/api/tasks?status=all\|active\|completed` | — | `200` массив задач | `400` неверный status |
+| GET | `/api/tasks/:id` | — | `200` задача | `400`, `404` |
+| POST | `/api/tasks` | `{ "title": "..." }` | `201` созданная задача | `400` пустой или длинный title |
+| PUT | `/api/tasks/:id` | `{ "title": "...", "completed": true }` | `200` задача | `400`, `404` |
+| PATCH | `/api/tasks/:id` | `{ "completed": true }` и/или `{ "title": "..." }` | `200` задача | `400`, `404` |
+| DELETE | `/api/tasks/:id` | — | `204` | `400`, `404` |
+
+Общие ошибки: `401` — нет или неверный `x-api-key`; `400` — некорректный JSON;
+`404` — неизвестный маршрут; `500` — внутренняя ошибка. Формат ошибки: `{ "error": "описание" }`.
+
+Пример:
+
+```bash
+curl -X POST http://localhost:4000/api/tasks \
+  -H "Content-Type: application/json" -H "x-api-key: <ключ>" \
+  -d '{"title":"Купить хлеб"}'
+```
+
+## Валидация (middleware)
+
+- `checkApiKey` — сравнивает заголовок `x-api-key` с переменной `API_KEY`, иначе `401`;
+- `validateId` — id в адресе должен быть положительным целым числом;
+- `validateCreate` / `validateReplace` / `validatePatch` — `title` непустая строка до 200 символов
+  (пробелы по краям обрезаются), `completed` — только `true` или `false`.
+
+## Деплой
+
+Проект размещён на Vercel с автоматическим деплоем из GitHub: push в `main` обновляет продакшн,
+push в другую ветку создаёт превью. Фронтенд собирается как статический сайт (`npm run build` → `dist`),
+Express-приложение работает как серверная функция `api/index.js`, запросы `/api/*` направляются в неё
+правилом `rewrites` в `vercel.json`.
+
+Задачи хранятся в памяти сервера, поэтому при перезапуске (локально) или при запуске нового экземпляра
+функции (на Vercel) список очищается.
